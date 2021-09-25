@@ -5,8 +5,19 @@ class FormTextField extends StatelessWidget {
   final String Function(String?)? validator;
   final String labelText;
   final Function(String)? onChanged;
+  final int? maxLength;
+  final bool? obsecureText;
+  final Widget? suffixIcon;
 
-  FormTextField({required this.inputType, this.validator, required this.labelText, this.onChanged});
+  FormTextField({
+    required this.inputType,
+    this.validator,
+    required this.labelText,
+    this.onChanged,
+    this.maxLength,
+    this.obsecureText = false,
+    this.suffixIcon
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -15,6 +26,7 @@ class FormTextField extends StatelessWidget {
       child: TextFormField(
         decoration:  InputDecoration(
             border: OutlineInputBorder(),
+            suffixIcon: suffixIcon,
             focusedBorder: OutlineInputBorder(
                 borderSide: BorderSide(
                     color: Colors.black
@@ -32,6 +44,8 @@ class FormTextField extends StatelessWidget {
           fontSize: 16.0,
         ),
         onChanged: onChanged,
+        maxLength: maxLength,
+        obscureText: obsecureText!,
       ),
     );
   }
