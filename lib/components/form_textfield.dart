@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 class FormTextField extends StatelessWidget {
   final TextInputType inputType;
-  final String Function(String?)? validator;
+  final String? Function(String?)? validator;
   final String labelText;
   final Function(String)? onChanged;
   final int? maxLength;

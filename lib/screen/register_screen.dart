@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/painting.dart';
 import 'package:gender_app/components/form_textfield.dart';
 import 'package:gender_app/components/rounded_button.dart';
+import 'package:gender_app/screen/home_page.dart';
 
 class RegisterScreen extends StatefulWidget {
 
@@ -11,12 +12,36 @@ class RegisterScreen extends StatefulWidget {
 }
 
 class _RegisterScreenState extends State<RegisterScreen> {
+  final _formKey = GlobalKey<FormState>();
+  String? firstName;
+  String? matricNo;
+  String? lastName;
+  String? email;
+  String? phoneNo;
+  String? password;
+  String? confirm_password;
+  bool _isObscure1 = true;
+  bool _isObscure2 = true;
+
+  bool confirmMatricNumber(String matric){
+    RegExp regExp = new RegExp(
+        r"(P|F)\/(ND|HD)\/\d[1-9]\/[0-9]*",
+        caseSensitive: false
+    );
+    bool matches = regExp.hasMatch(matric);
+    if(matches){
+      return true;
+    }else{
+      return false;
+    }
+  }
   @override
   Widget build(BuildContext context) {
-    bool _isObscure = true;
+
     return Scaffold(
       body: SafeArea(
         child: Form(
+          key: _formKey,
           child: Column(
             children: [
               Padding(
@@ -34,13 +59,49 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 child: ListView(
                   children: [
                     FormTextField(
-                      inputType: TextInputType.name, labelText: 'UserName',
+                      inputType: TextInputType.name,
+                      labelText: 'First Name',
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Please enter some text';
+                        }
+                        return null;
+                      },
+                      onChanged: (value) => firstName = value,
                     ),
                     FormTextField(
-                      inputType: TextInputType.text, labelText: 'Matrix Number',
+                      inputType: TextInputType.name,
+                      labelText: 'Surname',
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Please enter some text';
+                        }
+                        return null;
+                      },
+                      onChanged: (value) => lastName = value,
+                    ),
+                    FormTextField(
+                      inputType: TextInputType.text,
+                      labelText: 'Matrix Number',
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Please enter some text';
+                        }else if(!confirmMatricNumber(value)){
+                          return 'Invalid matric number';
+                        }
+                        return null;
+                      },
+                      onChanged: (value) => matricNo = value,
                     ),
                     FormTextField(
                       inputType: TextInputType.emailAddress, labelText: 'Email Address',
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Please enter some text';
+                        }
+                        return null;
+                      },
+                      onChanged: (value) => email = value,
                     ),
                     Padding(
                       padding: const EdgeInsets.only(left: 16.0),
@@ -70,7 +131,17 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           ),
                           Flexible(
                             child: FormTextField(
-                            inputType: TextInputType.number, labelText: 'Phone Number',maxLength: 11,
+                              inputType: TextInputType.number, labelText: 'Phone Number',
+                              maxLength: 11,
+                              validator: (value) {
+                                if (value == null || value.isEmpty) {
+                                  return 'Please enter some text';
+                                }else if(value.length < 11){
+                                  return 'Enter Complete Number';
+                                }
+                                return null;
+                              },
+                              onChanged: (value) => phoneNo = value,
                           )
                           )
                         ],
@@ -79,35 +150,62 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     FormTextField(
                       inputType: TextInputType.text,
                       labelText: 'Password',
-                      obsecureText: true,
                       suffixIcon: IconButton(
                         icon: Icon(
-                          _isObscure ? Icons.visibility : Icons.visibility_off ),
+                          _isObscure1 ? Icons.visibility_off : Icons.visibility),
                         onPressed: () {
                           setState(() {
-                            _isObscure = !_isObscure;
+                            _isObscure1 = !_isObscure1;
                           });
                         },
                       ),
+                      obsecureText: _isObscure1,
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Please enter some text';
+                        }
+                        return null;
+                      },
+                      onChanged: (value) {
+                        password = value;
+                      },
                     ),
                     FormTextField(
                       inputType: TextInputType.text,
                       labelText: 'Re-enter-Password',
-                      obsecureText: true,
+                      obsecureText: _isObscure2,
                       suffixIcon: IconButton(
                         icon: Icon(
-                            _isObscure ? Icons.visibility : Icons.visibility_off ),
+                            _isObscure2 ? Icons.visibility_off : Icons.visibility),
                         onPressed: () {
                           setState(() {
-                            _isObscure = !_isObscure;
+                            _isObscure2 = !_isObscure2;
                           });
                         },
                       ),
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Please enter some text';
+                        }
+                        else if(password != value){
+                          return 'Password does not match';
+                        }
+                        return null;
+                      },
+                      onChanged: (value) => confirm_password = value,
                     ),
                     RoundedButton(
                         title: 'Register',
                         onPress: () {
-
+                          if (_formKey.currentState!.validate()) {
+                            Navigator.pushAndRemoveUntil(
+                              context,
+                              MaterialPageRoute<dynamic>(
+                                builder: (context) => HomePage(),
+                              ),
+                                  (route) => false,
+                            );
+                          }
                         },
                         width: 300
                     )
