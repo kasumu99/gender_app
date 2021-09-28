@@ -16,7 +16,7 @@ class MyApp extends StatelessWidget {
         primaryColor: Colors.black,
         primaryColorDark: Colors.black
       ),
-      home: const WelcomeScreen(),
+      home: WelcomeScreen(),
     );
   }
 }

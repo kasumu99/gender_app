@@ -6,21 +6,19 @@ import 'package:gender_app/screen/register_screen.dart';
 import 'package:gender_app/util/welcome_item.dart';
 
 class WelcomeScreen extends StatefulWidget {
-  const WelcomeScreen({Key? key}) : super(key: key);
-
   @override
   State<WelcomeScreen> createState() => _WelcomeScreenState();
 }
 
 class _WelcomeScreenState extends State<WelcomeScreen> {
+  double currentPage = 0.0;
   @override
   Widget build(BuildContext context) {
-    double currentPage = 0.0;
     final _pageViewController = new PageController();
     List<Widget> slides = welcomeItem
     .map((item) => Container(
       child: Image.asset(
-          item['image'],
+        item['image'],
         fit: BoxFit.fill,
       ),
     )).toList();
@@ -28,8 +26,8 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
         slides.length,
             (index) => Container(
           margin: EdgeInsets.symmetric(horizontal: 3.0),
-          height: currentPage.round() == index ? 30.0 : 20,
-          width: currentPage.round() == index ? 30.0 : 20,
+          height: currentPage.round() == index ? 20.0 : 10,
+          width: currentPage.round() == index ? 20.0 : 10,
           decoration: BoxDecoration(
               color: currentPage.round() == index
                   ? Colors.red
@@ -49,7 +47,6 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                   _pageViewController.addListener(() {
                     setState(() {
                       currentPage = _pageViewController.page!;
-                      print(currentPage);
                     });
                   });
                   return slides[index];
@@ -59,8 +56,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
             Align(
                 alignment: Alignment.bottomCenter,
                 child: Container(
-                  margin: EdgeInsets.only(top: 70.0),
-                  padding: EdgeInsets.symmetric(vertical: 40.0),
+                  padding: EdgeInsets.symmetric(vertical: 10.0),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: indicator(),
