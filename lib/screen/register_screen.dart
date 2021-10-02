@@ -1,8 +1,11 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/painting.dart';
 import 'package:gender_app/components/form_textfield.dart';
 import 'package:gender_app/components/rounded_button.dart';
+import 'package:gender_app/helpers/common_functions.dart';
 import 'package:gender_app/screen/home_page.dart';
 
 class RegisterScreen extends StatefulWidget {
@@ -13,8 +16,11 @@ class RegisterScreen extends StatefulWidget {
 
 class _RegisterScreenState extends State<RegisterScreen> {
   final _formKey = GlobalKey<FormState>();
+  final _auth = FirebaseAuth.instance;
+  FirebaseFirestore firestore = FirebaseFirestore.instance;
   String? firstName;
   String? matricNo;
+  String? newMatricNo;
   String? lastName;
   String? email;
   String? phoneNo;
@@ -22,22 +28,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
   String? confirm_password;
   bool _isObscure1 = true;
   bool _isObscure2 = true;
+  bool showPinner = false;
 
-  bool confirmMatricNumber(String matric){
-    RegExp regExp = new RegExp(
-        r"(P|F)\/(ND|HD)\/\d[1-9]\/[0-9]*",
-        caseSensitive: false
-    );
-    bool matches = regExp.hasMatch(matric);
-    if(matches){
-      return true;
-    }else{
-      return false;
-    }
-  }
   @override
   Widget build(BuildContext context) {
-
+    CollectionReference _students = firestore.collection('students');
     return Scaffold(
       body: SafeArea(
         child: Form(
@@ -196,15 +191,34 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     ),
                     RoundedButton(
                         title: 'Register',
-                        onPress: () {
+                        onPress: () async {
                           if (_formKey.currentState!.validate()) {
-                            Navigator.pushAndRemoveUntil(
+                            final newUser = await _auth.createUserWithEmailAndPassword(email: email!, password: password!);
+                            newMatricNo = matricNo!.replaceAllMapped(RegExp(r'\/'), (match) {return '-';});
+                            if (newUser != null){
+                              _students.doc(newMatricNo!.toUpperCase())
+                              .set({
+                                'email' : email,
+                                'matric' : matricNo!.toUpperCase(),
+                                'fullName' : "${firstName} ${lastName}",
+                                'phone' : phoneNo,
+                                'id': newUser.user!.uid
+                              },
+                              )
+                              .then((value) => print("User Added"))
+                              .whenComplete(() => {
+                              Navigator.pushAndRemoveUntil(
                               context,
                               MaterialPageRoute<dynamic>(
-                                builder: (context) => HomePage(),
+                              builder: (context) => HomePage(),
                               ),
-                                  (route) => false,
-                            );
+                              (route) => false,
+                              )
+                              })
+                              .onError((error, stackTrace) => print("Error: $error , Strack: $stackTrace"))
+                                  .catchError((error) => print("Failed to add user: $error"));
+                            }
+
                           }
                         },
                         width: 300

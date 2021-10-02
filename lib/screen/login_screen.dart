@@ -1,16 +1,35 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:gender_app/components/form_textfield.dart';
 import 'package:gender_app/components/rounded_button.dart';
+import 'package:gender_app/helpers/common_functions.dart';
 
 import 'home_page.dart';
 
 class LoginScreen extends StatelessWidget {
   final _formKey = GlobalKey<FormState>();
+  final _auth = FirebaseAuth.instance;
+  FirebaseFirestore firestore = FirebaseFirestore.instance;
   bool _isObscure = true;
   String? matricNo;
+  String? email;
   String? password;
   @override
   Widget build(BuildContext context) {
+    CollectionReference _students = firestore.collection('students');
+    getEmailAddress(String matric){
+      var newMatricNo = matric.replaceAllMapped(RegExp(r'\/'), (match) {return '-';});
+      _students.doc(newMatricNo)
+      .get()
+          .then((DocumentSnapshot documentSnapshot) {
+        if (documentSnapshot.exists) {
+          print('Document data: ${documentSnapshot.data()}');
+        } else {
+          print('Document does not exist on the database');
+        }
+      });
+    };
     return Scaffold(
       body: SafeArea(
         child: Form(
@@ -30,10 +49,12 @@ class LoginScreen extends StatelessWidget {
               ),
               SizedBox(height: 20,),
               FormTextField(
-                inputType: TextInputType.emailAddress, labelText: 'Matric Number',
+                inputType: TextInputType.text, labelText: 'Matric Number',
                 validator: (value) {
                   if (value == null || value.isEmpty) {
                     return 'Please enter some text';
+                  }else if(!confirmMatricNumber(value)){
+                    return 'Invalid matric number';
                   }
                   return null;
                 },
@@ -54,15 +75,30 @@ class LoginScreen extends StatelessWidget {
               ),
               RoundedButton(
                   title: 'Login',
-                  onPress: () {
+                  onPress: () async {
+
                     if (_formKey.currentState!.validate()) {
-                      Navigator.pushAndRemoveUntil(
-                        context,
-                        MaterialPageRoute<dynamic>(
-                          builder: (context) => HomePage(),
-                        ),
-                            (route) => false,
-                      );
+                      try {
+                        final newUser = await _auth.signInWithEmailAndPassword(
+                            email: email!,
+                            password: password!
+                        );
+                        if (newUser != null){
+                          Navigator.pushAndRemoveUntil(
+                            context,
+                            MaterialPageRoute<dynamic>(
+                              builder: (context) => HomePage(),
+                            ),
+                                (route) => false,
+                          );
+                        }
+                      } on FirebaseAuthException catch (e) {
+                        if (e.code == 'user-not-found') {
+                          print('No user found for that email.');
+                        } else if (e.code == 'wrong-password') {
+                          print('Wrong password provided for that user.');
+                        }
+                      }
                     }
                   },
                   width: 300
