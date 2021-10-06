@@ -28,7 +28,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
   String? confirm_password;
   bool _isObscure1 = true;
   bool _isObscure2 = true;
-  bool showPinner = false;
+  bool _isLoading = false;
 
   @override
   Widget build(BuildContext context) {
@@ -192,8 +192,23 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     RoundedButton(
                         title: 'Register',
                         onPress: () async {
+                          _isLoading = true;
                           if (_formKey.currentState!.validate()) {
-                            final newUser = await _auth.createUserWithEmailAndPassword(email: email!, password: password!);
+                            setState(() {
+                              _isLoading ? buildShowProgressBar(context) : Navigator.of(context).pop();
+                            });
+                            final newUser = await _auth.createUserWithEmailAndPassword(email: email!, password: password!)
+                            .whenComplete((){
+                              setState(() {
+                                _isLoading = false;
+                              });
+                            })
+                            .catchError((error){
+                              print("Failed to sign up user: $error");
+                              setState(() {
+                                _isLoading = false;
+                              });
+                            });
                             newMatricNo = matricNo!.replaceAllMapped(RegExp(r'\/'), (match) {return '-';});
                             if (newUser != null){
                               _students.doc(newMatricNo!.toUpperCase())
@@ -205,18 +220,16 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                 'id': newUser.user!.uid
                               },
                               )
-                              .then((value) => print("User Added"))
-                              .whenComplete(() => {
-                              Navigator.pushAndRemoveUntil(
-                              context,
-                              MaterialPageRoute<dynamic>(
-                              builder: (context) => HomePage(),
-                              ),
-                              (route) => false,
-                              )
+                              .then((value){
+                                print("User Added");
+                                Navigator.pushAndRemoveUntil(
+                                    context,
+                                    MaterialPageRoute<dynamic>(
+                                      builder: (context) => HomePage(),
+                                    ),
+                                        (route) => false);
                               })
-                              .onError((error, stackTrace) => print("Error: $error , Strack: $stackTrace"))
-                                  .catchError((error) => print("Failed to add user: $error"));
+                              .catchError((error) => print("Failed to add user: $error"));
                             }
 
                           }
@@ -227,9 +240,19 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 ),
               ),
             ],
-          ),
+          )
         ),
       ),
     );
+  }
+  buildShowProgressBar(BuildContext context) {
+    return showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (context) {
+          return Center(
+            child: CircularProgressIndicator(),
+          );
+        });
   }
 }

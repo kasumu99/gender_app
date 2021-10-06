@@ -39,6 +39,7 @@ class FormTextField extends StatelessWidget {
         ),
         keyboardType: inputType,
         validator: validator,
+        textInputAction: TextInputAction.next,
         style: TextStyle(
           color: Colors.black,
           fontSize: 16.0,

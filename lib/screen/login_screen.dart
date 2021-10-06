@@ -7,7 +7,12 @@ import 'package:gender_app/helpers/common_functions.dart';
 
 import 'home_page.dart';
 
-class LoginScreen extends StatelessWidget {
+class LoginScreen extends StatefulWidget {
+  @override
+  State<LoginScreen> createState() => _LoginScreenState();
+}
+
+class _LoginScreenState extends State<LoginScreen> {
   final _formKey = GlobalKey<FormState>();
   final _auth = FirebaseAuth.instance;
   FirebaseFirestore firestore = FirebaseFirestore.instance;
@@ -15,21 +20,10 @@ class LoginScreen extends StatelessWidget {
   String? matricNo;
   String? email;
   String? password;
+
   @override
   Widget build(BuildContext context) {
     CollectionReference _students = firestore.collection('students');
-    getEmailAddress(String matric){
-      var newMatricNo = matric.replaceAllMapped(RegExp(r'\/'), (match) {return '-';});
-      _students.doc(newMatricNo)
-      .get()
-          .then((DocumentSnapshot documentSnapshot) {
-        if (documentSnapshot.exists) {
-          print('Document data: ${documentSnapshot.data()}');
-        } else {
-          print('Document does not exist on the database');
-        }
-      });
-    };
     return Scaffold(
       body: SafeArea(
         child: Form(
@@ -63,6 +57,15 @@ class LoginScreen extends StatelessWidget {
               FormTextField(
                 inputType: TextInputType.text, labelText: 'Password',
                 obsecureText: _isObscure,
+                suffixIcon: IconButton(
+                  icon: Icon(
+                      _isObscure ? Icons.visibility_off : Icons.visibility),
+                  onPressed: () {
+                    setState(() {
+                      _isObscure = !_isObscure;
+                    });
+                  },
+                ),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
                     return 'Please enter some text';
@@ -76,34 +79,43 @@ class LoginScreen extends StatelessWidget {
               RoundedButton(
                   title: 'Login',
                   onPress: () async {
-
                     if (_formKey.currentState!.validate()) {
-                      try {
-                        final newUser = await _auth.signInWithEmailAndPassword(
-                            email: email!,
-                            password: password!
-                        );
-                        if (newUser != null){
-                          Navigator.pushAndRemoveUntil(
-                            context,
-                            MaterialPageRoute<dynamic>(
-                              builder: (context) => HomePage(),
-                            ),
-                                (route) => false,
-                          );
+                      var newMatricNo = matricNo!.toUpperCase().replaceAllMapped(RegExp(r'\/'), (match) {return '-';});
+                      _students.doc(newMatricNo)
+                          .get()
+                          .then((DocumentSnapshot documentSnapshot) async {
+                        if (documentSnapshot.exists) {
+                          print('Document data: ${documentSnapshot.data()}');
+                          email = documentSnapshot["email"];
+                          try {
+                            final newUser = await _auth.signInWithEmailAndPassword(
+                                email: email!,
+                                password: password!
+                            );
+                            if (newUser != null){
+                              Navigator.pushAndRemoveUntil(
+                                context,
+                                MaterialPageRoute<dynamic>(
+                                  builder: (context) => HomePage(),
+                                ),
+                                    (route) => false,
+                              );
+                            }
+                          } on FirebaseAuthException catch (e) {
+                            if (e.code == 'user-not-found') {
+                              print('No user found for that email.');
+                            } else if (e.code == 'wrong-password') {
+                              print('Wrong password provided for that user.');
+                            }
+                          }
+                        } else {
+                          print('Document does not exist on the database');
                         }
-                      } on FirebaseAuthException catch (e) {
-                        if (e.code == 'user-not-found') {
-                          print('No user found for that email.');
-                        } else if (e.code == 'wrong-password') {
-                          print('Wrong password provided for that user.');
-                        }
-                      }
+                      });
                     }
                   },
                   width: 300
               ),
-
             ],
           ),
         ),
