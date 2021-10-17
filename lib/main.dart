@@ -20,12 +20,15 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primaryColor: Colors.black,
         primaryColorDark: Colors.black,
+        colorScheme: ThemeData().colorScheme.copyWith(
+          secondary: Colors.black
+        ),
         appBarTheme: AppBarTheme(
           backgroundColor: Colors.red,
 
         )
       ),
-      home: WelcomeScreen(),
+      home: InitializerWidget(),
     );
   }
 }
