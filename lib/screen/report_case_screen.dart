@@ -8,6 +8,9 @@ import 'package:gender_app/components/rounded_button.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:gender_app/model/user_preferences.dart';
 import 'package:modal_progress_hud/modal_progress_hud.dart';
+import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
+import 'package:path/path.dart' as Path;
+
 
 class ReportCaseScreen extends StatefulWidget {
   @override
@@ -15,15 +18,24 @@ class ReportCaseScreen extends StatefulWidget {
 }
 
 class _ReportCaseScreenState extends State<ReportCaseScreen> {
-  List<File>? files;
+  List<File> file_paths = [];
   final _formKey = GlobalKey<FormState>();
   bool _isLoading = false;
   FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  firebase_storage.FirebaseStorage _storage = firebase_storage.FirebaseStorage.instance;
+  firebase_storage.Reference? ref;
+  CollectionReference? imgRef;
   final _auth = FirebaseAuth.instance;
+
   bool _isAnonymously = true;
   String? caseTitle;
   String? caseDescription;
 
+  @override
+  void initState() {
+    super.initState();
+    imgRef = _firestore.collection('Evidence attachment');
+  }
   @override
   Widget build(BuildContext context) {
     CollectionReference _students = _firestore.collection('students');
@@ -121,34 +133,45 @@ class _ReportCaseScreenState extends State<ReportCaseScreen> {
                 ),
                 Container(
                   color: Colors.white,
+                  height: 50,
                   padding: EdgeInsets.all(10),
-                  child: files != null ? Column(
-                    children: [
-                      IconButton(
-                        alignment: Alignment.topRight,
-                          onPressed: () {
-
-                          },
-                          icon: Icon(Icons.close)),
-                      Text(
-                        'file name'
-                      )
-                    ],
-
+                  child: file_paths.isNotEmpty ? ListView.builder(
+                    itemCount: file_paths.length,
+                    scrollDirection: Axis.horizontal,
+                    shrinkWrap: true,
+                    itemBuilder: (BuildContext context, int index) {
+                      return Container(
+                        margin: EdgeInsets.all(3),
+                        child: Row(
+                          children: [
+                            Text("${Path.basename(file_paths[index].path)}"),
+                            IconButton(
+                              icon: Icon(Icons.close_rounded),
+                              onPressed: () {
+                                setState(() {
+                                  file_paths.removeAt(index);
+                                });
+                              },
+                              padding: EdgeInsets.all(0),
+                            )
+                          ],
+                        ),
+                      );
+                  },
                   ): Text('No Attachment',style: TextStyle(fontSize: 20),),
                 ),
                 RoundedButton(
                     title: 'Pick A file',
                     onPress: () async {
-                      FilePickerResult? result = await FilePicker.platform.pickFiles(allowMultiple: true);
-                      if (result != null) {
-                        files = result.paths.map((path) => File(path!)).toList();
-                        print(files!.length);
-                        PlatformFile file = result.files.first;
-                        print(file.path);
-
-                      } else {
-                        // User canceled the picker
+                      final result = await FilePicker.platform.pickFiles(allowMultiple: true);
+                      if(result != null){
+                        List<File> path = result.paths.map((path) => File(path!)).toList();
+                        for (var n in path){
+                          print("path ${path}");
+                          setState(() {
+                            file_paths.add(n);
+                          });
+                        }
                       }
                     },
                     width: 40),
@@ -174,33 +197,39 @@ class _ReportCaseScreenState extends State<ReportCaseScreen> {
                         setState(() {
                           _isLoading = true;
                         });
-                        if(_isAnonymously){
-                          _reportcase
-                          .add({
-                            'case_title' : caseTitle,
-                            'case_description' : caseDescription,
-                            'anonymously': true,
-                          })
-                          .then((value){
-                            setState(() {
-                              _isLoading = false;
+                        uploadFile().whenComplete(() async {
+                          if(_isAnonymously){
+                            _reportcase
+                                .add({
+                              'case_title' : caseTitle,
+                              'case_description' : caseDescription,
+                              'anonymously': true,
+                            })
+                                .then((value){
+                              print(value.id);
+                              setState(() {
+                                _isLoading = false;
+                              });
+                              print('Sucessfull');
+                              Navigator.pop(context);
                             });
-                            print('Sucessfull');
-                          });
-                        }else{
-                          _reportcase
-                              .add({
-                            'case_title' : caseTitle,
-                            'case_description' : caseDescription,
-                            'anonymously': false,
-                            'victim_name': await UserPreferences.getUserMatricNumber(),
-                          }).then((value){
-                            setState(() {
-                              _isLoading = false;
+                          }
+                          else{
+                            _reportcase
+                                .add({
+                              'case_title' : caseTitle,
+                              'case_description' : caseDescription,
+                              'anonymously': false,
+                              'victim_name': await UserPreferences.getUserMatricNumber(),
+                            }).then((value){
+                              print(value.id);
+                              setState(() {
+                                _isLoading = false;
+                              });
+                              Navigator.pop(context);
                             });
-                            print('Sucessfull');
-                          });
-                        }
+                          }
+                        });
                       }
                     },
                     width: 10),
@@ -211,4 +240,18 @@ class _ReportCaseScreenState extends State<ReportCaseScreen> {
       ),
     );
   }
+  Future uploadFile() async{
+    for(var file in file_paths){
+      ref = _storage
+      .ref('evidence_attachment/${Path.basename(file.path)}');
+      await ref!.putFile(file).whenComplete(() async {
+        await ref!.getDownloadURL().then((value){
+          imgRef!.add({'url': value});
+        });
+      });
+    }
+  }
+
+
 }
+
