@@ -1,9 +1,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/painting.dart';
 import 'package:gender_app/components/nav_drawer.dart';
+import 'package:gender_app/screen/case_page.dart';
 
 class HomePage extends StatelessWidget {
   FirebaseFirestore _firestore = FirebaseFirestore.instance;
@@ -44,44 +44,55 @@ class HomePage extends StatelessWidget {
                 itemCount: snapshot.data!.docs.length,
                 shrinkWrap: true,
                 itemBuilder: (context, index) {
-                  return Card(
-                    margin: EdgeInsets.all(10),
-                    child: Column(
-                      children: [
-                        Row(
-                          children: [
-                            Expanded(
-                              child: Text(
-                                'Report Topic: ${snapshot.data!.docs[index].get('case_title')}',
-                                style: TextStyle(
-                                    fontWeight: FontWeight.bold
+                  return GestureDetector(
+                    child: Card(
+                      margin: EdgeInsets.all(5),
+                      child: Column(
+                        children: [
+                          Row (
+                            children: [
+                              Expanded(
+                                child: Text(
+                                  'Report Topic: ${snapshot.data!.docs[index].get('case_title')}',
+                                  style: TextStyle(
+                                      fontWeight: FontWeight.bold
+                                  ),
                                 ),
                               ),
-                            ),
-                            SizedBox(
-                              width: 20,
-                            ),
-                          ],
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: Row(
-                            children: [
-                              Icon(Icons.thumb_up_outlined ),
-                              Text('12'),
-                              Icon(Icons.comment_outlined),
-                              Text('8'),
-                              Text(
-                                're-solve',
-                                style: TextStyle(
-                                    color: Colors.green
-                                ),
-                              )
+                              SizedBox(
+                                width: 20,
+                              ),
                             ],
                           ),
-                        )
-                      ],
+                          Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Row(
+                              children: [
+                                Icon(Icons.thumb_up_outlined ),
+                                Text('12'),
+                                SizedBox(width: 10,),
+                                Icon(Icons.comment_outlined),
+                                Text('8'),
+                                Text(
+                                  're-solve',
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(
+                                      color: Colors.green
+                                  ),
+                                )
+                              ],
+                            ),
+                          )
+                        ],
+                      ),
                     ),
+                    onTap: () {
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => CasePage(),
+                          ));
+                    },
                   );
                 },
               ),
