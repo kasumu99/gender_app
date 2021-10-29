@@ -60,15 +60,35 @@ class NavDrawer extends StatelessWidget {
           ),
           RoundedButton(
               title: 'Logout',
-              onPress: () async {
+              onPress: () {
+                showDialog(
+                  context: context,
+                  builder: (context) => AlertDialog(
+                  title: Text('Are sure u want to Logout'),
+                  actions: [
+                    TextButton(
+                      onPressed: () {
+                        Navigator.pop;
+                      },
+                      child: Text('No'),
+                    ),
+                    TextButton(
+                      onPressed: () async {
+                        try{
+                          await _auth.signOut().then((value) async {
+                            await UserPreferences.removeAll();
+                            Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => WelcomeScreen(),));
+                          });
+                        }catch(e){
+                          print("Error: ${e}");
+                        }
+                      },
+                      child: Text('yes'),
+                    )
+                  ],
 
-                try{
-                  await _auth.signOut();
-                  await UserPreferences.removeAll();
-                  Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => WelcomeScreen(),));
-                }catch(e){
-
-                }
+                )
+                );
               },
               width: double.infinity
           )

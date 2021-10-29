@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:gender_app/components/rounded_button.dart';
@@ -12,28 +14,29 @@ class WelcomeScreen extends StatefulWidget {
 
 class _WelcomeScreenState extends State<WelcomeScreen> {
   double currentPage = 0.0;
+  final _pageViewController = new PageController();
+  List<Widget> slides = welcomeItem
+      .map((item) => Container(
+    child: Image.asset(
+      item['image'],
+      fit: BoxFit.fill,
+    ),
+  )).toList();
+  List<Widget> indicator() => List<Widget>.generate(
+      slides.length,
+          (index) => Container(
+        margin: EdgeInsets.symmetric(horizontal: 3.0),
+        height: currentPage.round() == index ? 20.0 : 10,
+        width: currentPage.round() == index ? 20.0 : 10,
+        decoration: BoxDecoration(
+            color: currentPage.round() == index
+                ? Colors.red
+                : Colors.white,
+            borderRadius: BorderRadius.circular(30.0)),
+      ));
+
   @override
   Widget build(BuildContext context) {
-    final _pageViewController = new PageController();
-    List<Widget> slides = welcomeItem
-    .map((item) => Container(
-      child: Image.asset(
-        item['image'],
-        fit: BoxFit.fill,
-      ),
-    )).toList();
-    List<Widget> indicator() => List<Widget>.generate(
-        slides.length,
-            (index) => Container(
-          margin: EdgeInsets.symmetric(horizontal: 3.0),
-          height: currentPage.round() == index ? 20.0 : 10,
-          width: currentPage.round() == index ? 20.0 : 10,
-          decoration: BoxDecoration(
-              color: currentPage.round() == index
-                  ? Colors.red
-                  : Colors.white,
-              borderRadius: BorderRadius.circular(30.0)),
-        ));
     return Scaffold(
       backgroundColor: Colors.black,
       body: SafeArea(

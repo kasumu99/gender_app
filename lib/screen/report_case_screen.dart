@@ -27,17 +27,7 @@ class _ReportCaseScreenState extends State<ReportCaseScreen> {
   final _controller = TextEditingController();
   final _controller2 = TextEditingController();
   UserReportModel _userReportModel = new UserReportModel();
-  // CollectionReference? imgRef;
 
-  // bool _isAnonymously = true;
-  // String? caseTitle;
-  // String? caseDescription;
-
-  // @override
-  // void initState() {
-  //   super.initState();
-  //   imgRef = _firestore.collection('Evidence attachment');
-  // }
   @override
   Widget build(BuildContext context) {
     CollectionReference _reportcase = _firestore.collection('report_case');

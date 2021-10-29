@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/painting.dart';
+import 'package:gender_app/components/constants.dart';
 import 'package:gender_app/components/form_textfield.dart';
 import 'package:gender_app/components/rounded_button.dart';
 import 'package:gender_app/helpers/common_functions.dart';
@@ -34,7 +35,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
   @override
   Widget build(BuildContext context) {
-    CollectionReference _students = _firestore.collection('students');
+    CollectionReference _students = _firestore.collection(students_txt);
     return Scaffold(
       body: SafeArea(
         child: ModalProgressHUD(
@@ -200,42 +201,48 @@ class _RegisterScreenState extends State<RegisterScreen> {
                               setState(() {
                                 _isLoading = true;
                               });
-                              final newUser = await _auth.createUserWithEmailAndPassword(email: email!, password: password!)
-                              .whenComplete((){
-                                setState(() {
-                                  _isLoading = false;
-                                });
-                              })
-                              .catchError((error){
-                                print("Failed to sign up user: $error");
-                                setState(() {
-                                  _isLoading = false;
-                                });
-                              });
                               newMatricNo = matricNo!.replaceAllMapped(RegExp(r'\/'), (match) {return '-';});
-                              if (newUser != null){
-                                _students.doc(newMatricNo!.toUpperCase())
-                                .set({
-                                  'email' : email,
-                                  'matric' : matricNo!.toUpperCase(),
-                                  'fullName' : "${firstName} ${lastName}",
-                                  'phone' : phoneNo,
-                                  'id': newUser.user!.uid
-                                },
-                                )
-                                .then((value){
-                                  print("User Added");
-                                  UserPreferences.setUserMatricNumber(newMatricNo!);
-                                  Navigator.pushAndRemoveUntil(
-                                      context,
-                                      MaterialPageRoute<dynamic>(
-                                        builder: (context) => HomePage(),
-                                      ),
-                                          (route) => false);
-                                })
-                                .catchError((error) => print("Failed to add user: $error"));
+                              try {
+                               await _auth
+                                   .createUserWithEmailAndPassword(
+                                   email: email!, password: password!)
+                                   .then((value){
+                                 if (value != null){
+                                   _students.doc(newMatricNo!.toUpperCase())
+                                       .set({
+                                     'email' : email,
+                                     'matric' : matricNo!.toUpperCase(),
+                                     'fullName' : "${firstName} ${lastName}",
+                                     'phone' : phoneNo,
+                                     'id': value.user!.uid
+                                   },
+                                   )
+                                       .then((value){
+                                     print("User Added");
+                                     UserPreferences.setUserMatricNumber(newMatricNo!);
+                                     UserPreferences.setFullname("${firstName} ${lastName}");
+                                     Navigator.pushAndRemoveUntil(
+                                         context,
+                                         MaterialPageRoute<dynamic>(
+                                           builder: (context) => HomePage(),
+                                         ),
+                                             (route) => false);
+                                   })
+                                       .catchError((error) => print("Failed to add user: $error"));
+                                 }
+                                   });
+                              } on FirebaseAuthException catch (e){
+                                setState(() {
+                                  _isLoading = false;
+                                });
+                                  if(e.code == "network-request-failed"){
+                                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Network error')));
+                                  }else if(e.code == "email-already-in-use"){
+                                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Email already in use')));
+                                  }else{
+                                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('${e.code}')));
+                                  }
                               }
-
                             }
                           },
                           width: 300

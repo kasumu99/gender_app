@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:gender_app/components/constants.dart';
 import 'package:gender_app/components/form_textfield.dart';
 import 'package:gender_app/components/rounded_button.dart';
 import 'package:gender_app/helpers/common_functions.dart';
@@ -26,7 +27,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
-    CollectionReference _students = _firestore.collection('students');
+    CollectionReference _students = _firestore.collection(students_txt);
     return Scaffold(
       body: SafeArea(
         child: ModalProgressHUD(
@@ -95,6 +96,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           if (documentSnapshot.exists) {
                             print('Document data: ${documentSnapshot.data()}');
                             email = documentSnapshot["email"];
+                            UserPreferences.setFullname(documentSnapshot["fullName"]);
                             try {
                               final newUser = await _auth.signInWithEmailAndPassword(
                                   email: email!,
@@ -119,8 +121,12 @@ class _LoginScreenState extends State<LoginScreen> {
                               });
                               if (e.code == 'user-not-found') {
                                 print('No user found for that email.');
+                                ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: const Text('No user found for that email.'),));
                               } else if (e.code == 'wrong-password') {
                                 print('Wrong password provided for that user.');
+                                ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: const Text('Wrong password provided'),));
+                              }else{
+                                ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: const Text('Retry'),));
                               }
                             }
                           }
@@ -128,8 +134,13 @@ class _LoginScreenState extends State<LoginScreen> {
                             setState(() {
                               _isLoading = false;
                             });
-                            print('Matric Number does not exist.');
+                            ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: const Text('Invalid Matric Number'),));
                           }
+                        }).catchError((error){
+                          setState(() {
+                            _isLoading = false;
+                          });
+                          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: const Text('Check Your Internet Connectivity'),));
                         });
                       }
                     },

@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/painting.dart';
+import 'package:gender_app/components/constants.dart';
 import 'package:gender_app/components/nav_drawer.dart';
 import 'package:gender_app/screen/case_page.dart';
 
@@ -26,7 +27,7 @@ class HomePage extends StatelessWidget {
       ),
       body: SafeArea(
         child: StreamBuilder(
-          stream: _firestore.collection('report_case').snapshots(),
+          stream: _firestore.collection(reportCase_text).snapshots(),
           builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
             if (snapshot.hasError) {
               return Text('Something went wrong');
@@ -90,7 +91,10 @@ class HomePage extends StatelessWidget {
                       Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (context) => CasePage(),
+                            builder: (context) => CasePage(
+                              reportCaseId: snapshot.data!.docs[index].id,
+                              case_description: snapshot.data!.docs[index].get('case_description'),
+                              case_topic: snapshot.data!.docs[index].get('case_title'),),
                           ));
                     },
                   );
