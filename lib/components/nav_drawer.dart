@@ -68,7 +68,7 @@ class NavDrawer extends StatelessWidget {
                   actions: [
                     TextButton(
                       onPressed: () {
-                        Navigator.pop;
+                        Navigator.pop(context);
                       },
                       child: Text('No'),
                     ),

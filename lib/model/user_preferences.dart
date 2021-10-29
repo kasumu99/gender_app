@@ -3,7 +3,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 class UserPreferences{
   static final String _kMatricNumber = "matricNumber";
   static final String _fullName = "fullname";
-  static final String _lastName = "lastName";
   static Future<String?> getUserMatricNumber() async{
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     String? stringValue = await prefs.getString(_kMatricNumber);

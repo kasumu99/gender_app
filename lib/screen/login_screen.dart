@@ -85,6 +85,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 RoundedButton(
                     title: 'Login',
                     onPress: () async {
+                      FocusScope.of(context).unfocus();
                       if (_formKey.currentState!.validate()) {
                         setState(() {
                           _isLoading = true;

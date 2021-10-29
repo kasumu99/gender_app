@@ -12,7 +12,6 @@ import 'package:gender_app/screen/home_page.dart';
 import 'package:modal_progress_hud/modal_progress_hud.dart';
 
 class RegisterScreen extends StatefulWidget {
-
   @override
   State<RegisterScreen> createState() => _RegisterScreenState();
 }
@@ -197,6 +196,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       RoundedButton(
                           title: 'Register',
                           onPress: () async {
+                            FocusScope.of(context).unfocus();
                             if (_formKey.currentState!.validate()) {
                               setState(() {
                                 _isLoading = true;

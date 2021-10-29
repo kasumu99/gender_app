@@ -3,6 +3,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/painting.dart';
 import 'package:flutter/rendering.dart';
+import 'package:flutter/widgets.dart';
 import 'package:gender_app/components/comment_stream.dart';
 import 'package:gender_app/components/constants.dart';
 import 'package:gender_app/model/user_preferences.dart';
@@ -14,16 +15,18 @@ class CasePage extends StatelessWidget {
   final String reportCaseId;
   final String case_topic;
   final String case_description;
+  final List<dynamic> fileUrl;
 
-  CasePage({required this.reportCaseId, required this.case_topic, required this.case_description});
+  CasePage({required this.reportCaseId, required this.case_topic, required this.case_description, required this.fileUrl});
 
   @override
   Widget build(BuildContext context) {
+    print("file: ${fileUrl}");
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.black,
         title: Text(
-          'Page name here',
+          'Report Case',
           style: TextStyle(
               color: Colors.white
           ),
@@ -49,7 +52,7 @@ class CasePage extends StatelessWidget {
                       ),
                     ),
                     Container(
-                      padding: EdgeInsets.symmetric(vertical: 16),
+                      padding: EdgeInsets.symmetric(vertical: 8),
                       child: Text(
                         'Description of Report: ',
                         style: TextStyle(
@@ -58,20 +61,36 @@ class CasePage extends StatelessWidget {
                         ),
                       ),
                     ),
-                    Container(
-                      padding: EdgeInsets.symmetric(vertical: 16),
-                      child: Text(
-                          case_description
+                    Card(
+                      margin: EdgeInsets.symmetric(vertical: 8),
+                      child: Container(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Text(
+                            case_description
+                        ),
                       ),
                     ),
                     Container(
-                      padding: EdgeInsets.symmetric(vertical: 16),
+                      padding: EdgeInsets.symmetric(vertical: 8),
                       child: Text(
-                        'Attachment',
+                        'Attachment: ',
                         style: TextStyle(
                           fontWeight: FontWeight.bold
                         ),
                       ),
+                    ),
+                    IgnorePointer(
+                      child: GridView.builder(
+                        shrinkWrap: true,
+                          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount: 2,
+                            mainAxisSpacing: 10,
+                            crossAxisSpacing: 10,
+                          ),
+                          itemCount: fileUrl.length,
+                          itemBuilder: (context, index) {
+                            return fileDesign(fileUrl);
+                          },),
                     ),
                     Container(
                       padding: EdgeInsets.symmetric(vertical: 16),
@@ -123,6 +142,40 @@ class CasePage extends StatelessWidget {
           ],
         ),
       ),
+    );
+  }
+
+  Widget fileDesign(List<dynamic> fileUrl) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Expanded(
+            child: Container(
+              alignment: Alignment.center,
+              width: double.infinity,
+              decoration: BoxDecoration(
+                color: Colors.red,
+                borderRadius: BorderRadius.circular(12)
+              ),
+              child: Text(
+                '.mp3',
+                style: TextStyle(
+                  fontSize: 28,
+                  color: Colors.white
+                ),
+              ),
+            )
+        ),
+        const SizedBox(height: 8),
+        Text(
+          "sile.mp3",
+          style: TextStyle(fontSize: 18,fontWeight: FontWeight.bold),
+        ),
+        Text(
+          "10.9 MB",
+          style: TextStyle(fontSize: 16),
+        ),
+      ],
     );
   }
 }

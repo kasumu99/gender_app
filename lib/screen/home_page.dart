@@ -8,6 +8,11 @@ import 'package:gender_app/screen/case_page.dart';
 
 class HomePage extends StatelessWidget {
   FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  Future<void> _refresh() {
+   return Future.delayed(
+     Duration(seconds: 5)
+   );
+  }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -41,64 +46,81 @@ class HomePage extends StatelessWidget {
             }
             return Container(
               height: double.infinity,
-              child: ListView.builder(
-                itemCount: snapshot.data!.docs.length,
-                shrinkWrap: true,
-                itemBuilder: (context, index) {
-                  return GestureDetector(
-                    child: Card(
-                      margin: EdgeInsets.all(5),
-                      child: Column(
-                        children: [
-                          Row (
-                            children: [
-                              Expanded(
-                                child: Text(
-                                  'Report Topic: ${snapshot.data!.docs[index].get('case_title')}',
-                                  style: TextStyle(
-                                      fontWeight: FontWeight.bold
+              child: RefreshIndicator(
+                onRefresh: _refresh,
+                child: ListView.builder(
+                  itemCount: snapshot.data!.docs.length,
+                  shrinkWrap: true,
+                  itemBuilder: (context, index) {
+                    return GestureDetector(
+                      child: Card(
+                        margin: EdgeInsets.all(5),
+                        child: Column(
+                          children: [
+                            Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Row (
+                                children: [
+                                  Padding(
+                                    padding: const EdgeInsets.all(8.0),
+                                    child: CircleAvatar(
+                                      radius: 20,
+                                      backgroundImage: AssetImage('images/user_profile.jpg'),
+                                    ),
                                   ),
-                                ),
-                              ),
-                              SizedBox(
-                                width: 20,
-                              ),
-                            ],
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: Row(
-                              children: [
-                                Icon(Icons.thumb_up_outlined ),
-                                Text('12'),
-                                SizedBox(width: 10,),
-                                Icon(Icons.comment_outlined),
-                                Text('8'),
-                                Text(
-                                  're-solve',
-                                  textAlign: TextAlign.center,
-                                  style: TextStyle(
-                                      color: Colors.green
+                                  Expanded(
+                                    child: Text(
+                                      'Report Topic: ${snapshot.data!.docs[index].get('case_title')}',
+                                      style: TextStyle(
+                                          fontWeight: FontWeight.bold
+                                      ),
+                                    ),
                                   ),
-                                )
-                              ],
+                                  SizedBox(
+                                    width: 20,
+                                  ),
+                                ],
+                              ),
                             ),
-                          )
-                        ],
+                            Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Row(
+                                children: [
+                                  Icon(Icons.thumb_up_outlined ),
+                                  Text('12'),
+                                  SizedBox(width: 10,),
+                                  Icon(Icons.comment_outlined),
+                                  Text('8'),
+                                  Expanded(
+                                    child: Text(
+                                      're-solve',
+                                      textAlign: TextAlign.end,
+                                      style: TextStyle(
+                                          color: Colors.green
+                                      ),
+                                    ),
+                                  )
+                                ],
+                              ),
+                            )
+                          ],
+                        ),
                       ),
-                    ),
-                    onTap: () {
-                      Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => CasePage(
-                              reportCaseId: snapshot.data!.docs[index].id,
-                              case_description: snapshot.data!.docs[index].get('case_description'),
-                              case_topic: snapshot.data!.docs[index].get('case_title'),),
-                          ));
-                    },
-                  );
-                },
+                      onTap: () {
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => CasePage(
+                                reportCaseId: snapshot.data!.docs[index].id,
+                                case_description: snapshot.data!.docs[index].get('case_description'),
+                                case_topic: snapshot.data!.docs[index].get('case_title'),
+                                fileUrl: snapshot.data!.docs[index].get('evidence_attachment'),
+                              ),
+                            ));
+                      },
+                    );
+                  },
+                ),
               ),
             );
           },

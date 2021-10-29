@@ -192,7 +192,6 @@ class _ReportCaseScreenState extends State<ReportCaseScreen> {
                         });
                         uploadFile().whenComplete(() async {
                           if(_userReportModel.isAnonymously){
-                            // print(_userReportModel.imageUrl);
                             _reportcase
                                 .add({
                               'case_title' : _userReportModel.reportName,
@@ -208,6 +207,11 @@ class _ReportCaseScreenState extends State<ReportCaseScreen> {
                               });
                               print('Sucessfull');
                               Navigator.pop(context);
+                            }).catchError((error){
+                              setState(() {
+                                _isLoading = false;
+                              });
+                              ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: const Text('Check Your Internet Connectivity'),));
                             });
                           }
                           else{
@@ -216,13 +220,18 @@ class _ReportCaseScreenState extends State<ReportCaseScreen> {
                               'case_title' : _userReportModel.reportName,
                               'case_description' : _userReportModel.reportDescription,
                               'anonymously': false,
-                              'victim_name': await UserPreferences.getUserMatricNumber(),
+                              'victim_name': await UserPreferences.getFullname(),
                               'evidence_attachment': _userReportModel.imageUrl,
                             }).then((value){
                               setState(() {
                                 _isLoading = false;
                               });
                               Navigator.pop(context);
+                            }).catchError((error){
+                              setState(() {
+                                _isLoading = false;
+                              });
+                              ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: const Text('Check Your Internet Connectivity'),));
                             });
                           }
                         });
