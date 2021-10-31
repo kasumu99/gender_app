@@ -1,3 +1,4 @@
+import 'package:animated_text_kit/animated_text_kit.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -37,23 +38,23 @@ class _LoginScreenState extends State<LoginScreen> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Text(
+                AnimatedTextKit(animatedTexts: [
+                  TypewriterAnimatedText(
                     'Login',
-                    style: TextStyle(
-                        fontSize: 40,
-
-                    ),
-                  ),
+                    textStyle:
+                        TextStyle(fontSize: 40, fontStyle: FontStyle.italic),
+                  )
+                ]),
+                SizedBox(
+                  height: 20,
                 ),
-                SizedBox(height: 20,),
                 FormTextField(
-                  inputType: TextInputType.text, labelText: 'Matric Number',
+                  inputType: TextInputType.text,
+                  labelText: 'Matric Number',
                   validator: (value) {
                     if (value == null || value.isEmpty) {
                       return 'Please enter some text';
-                    }else if(!confirmMatricNumber(value)){
+                    } else if (!confirmMatricNumber(value)) {
                       return 'Invalid matric number';
                     }
                     return null;
@@ -61,7 +62,8 @@ class _LoginScreenState extends State<LoginScreen> {
                   onChanged: (value) => matricNo = value,
                 ),
                 FormTextField(
-                  inputType: TextInputType.text, labelText: 'Password',
+                  inputType: TextInputType.text,
+                  labelText: 'Password',
                   obsecureText: _isObscure,
                   suffixIcon: IconButton(
                     icon: Icon(
@@ -90,30 +92,36 @@ class _LoginScreenState extends State<LoginScreen> {
                         setState(() {
                           _isLoading = true;
                         });
-                        var newMatricNo = matricNo!.toUpperCase().replaceAllMapped(RegExp(r'\/'), (match) {return '-';});
-                        _students.doc(newMatricNo)
+                        var newMatricNo = matricNo!
+                            .toUpperCase()
+                            .replaceAllMapped(RegExp(r'\/'), (match) {
+                          return '-';
+                        });
+                        _students
+                            .doc(newMatricNo)
                             .get()
                             .then((DocumentSnapshot documentSnapshot) async {
                           if (documentSnapshot.exists) {
                             print('Document data: ${documentSnapshot.data()}');
                             email = documentSnapshot["email"];
-                            UserPreferences.setFullname(documentSnapshot["fullName"]);
+                            UserPreferences.setFullname(
+                                documentSnapshot["fullName"]);
                             try {
-                              final newUser = await _auth.signInWithEmailAndPassword(
-                                  email: email!,
-                                  password: password!
-                              );
-                              if (newUser != null){
+                              final newUser =
+                                  await _auth.signInWithEmailAndPassword(
+                                      email: email!, password: password!);
+                              if (newUser != null) {
                                 setState(() {
                                   _isLoading = false;
                                 });
-                                UserPreferences.setUserMatricNumber(newMatricNo);
+                                UserPreferences.setUserMatricNumber(
+                                    newMatricNo);
                                 Navigator.pushAndRemoveUntil(
                                   context,
                                   MaterialPageRoute<dynamic>(
                                     builder: (context) => HomePage(),
                                   ),
-                                      (route) => false,
+                                  (route) => false,
                                 );
                               }
                             } on FirebaseAuthException catch (e) {
@@ -122,31 +130,45 @@ class _LoginScreenState extends State<LoginScreen> {
                               });
                               if (e.code == 'user-not-found') {
                                 print('No user found for that email.');
-                                ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: const Text('No user found for that email.'),));
+                                ScaffoldMessenger.of(context)
+                                    .showSnackBar(SnackBar(
+                                  content: const Text(
+                                      'No user found for that email.'),
+                                ));
                               } else if (e.code == 'wrong-password') {
                                 print('Wrong password provided for that user.');
-                                ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: const Text('Wrong password provided'),));
-                              }else{
-                                ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: const Text('Retry'),));
+                                ScaffoldMessenger.of(context)
+                                    .showSnackBar(SnackBar(
+                                  content:
+                                      const Text('Wrong password provided'),
+                                ));
+                              } else {
+                                ScaffoldMessenger.of(context)
+                                    .showSnackBar(SnackBar(
+                                  content: const Text('Retry'),
+                                ));
                               }
                             }
-                          }
-                          else {
+                          } else {
                             setState(() {
                               _isLoading = false;
                             });
-                            ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: const Text('Invalid Matric Number'),));
+                            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                              content: const Text('Invalid Matric Number'),
+                            ));
                           }
-                        }).catchError((error){
+                        }).catchError((error) {
                           setState(() {
                             _isLoading = false;
                           });
-                          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: const Text('Check Your Internet Connectivity'),));
+                          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                            content:
+                                const Text('Check Your Internet Connectivity'),
+                          ));
                         });
                       }
                     },
-                    width: 300
-                ),
+                    width: 300),
               ],
             ),
           ),

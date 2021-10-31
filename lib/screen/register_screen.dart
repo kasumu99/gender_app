@@ -1,8 +1,10 @@
+import 'package:animated_text_kit/animated_text_kit.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/painting.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:gender_app/components/constants.dart';
 import 'package:gender_app/components/form_textfield.dart';
 import 'package:gender_app/components/rounded_button.dart';
@@ -44,13 +46,14 @@ class _RegisterScreenState extends State<RegisterScreen> {
             child: Column(
               children: [
                 Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Text(
-                    'Register',
-                    style: TextStyle(
-                      fontSize: 40,
-                      fontStyle: FontStyle.italic
-                    ),
+                  padding: const EdgeInsets.only(top: 16.0),
+                  child: AnimatedTextKit(
+                    animatedTexts: [
+                      TypewriterAnimatedText(
+                        'Register',
+                        textAlign: TextAlign.center,
+                        textStyle: TextStyle(fontSize: 40, fontStyle: FontStyle.italic),)
+                    ]
                   ),
                 ),
                 SizedBox(height: 20,),

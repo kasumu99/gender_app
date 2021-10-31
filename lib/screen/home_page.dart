@@ -2,9 +2,11 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/painting.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:gender_app/components/constants.dart';
 import 'package:gender_app/components/nav_drawer.dart';
-import 'package:gender_app/screen/case_page.dart';
+import 'package:gender_app/model/user_preferences.dart';
+import 'package:gender_app/screen/case_page_screen.dart';
 
 class HomePage extends StatelessWidget {
   FirebaseFirestore _firestore = FirebaseFirestore.instance;
@@ -13,6 +15,7 @@ class HomePage extends StatelessWidget {
      Duration(seconds: 5)
    );
   }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -86,10 +89,10 @@ class HomePage extends StatelessWidget {
                               padding: const EdgeInsets.all(8.0),
                               child: Row(
                                 children: [
-                                  Icon(Icons.thumb_up_outlined ),
+                                  Icon(FontAwesomeIcons.thumbsUp),
                                   Text('12'),
                                   SizedBox(width: 10,),
-                                  Icon(Icons.comment_outlined),
+                                  Icon(FontAwesomeIcons.comment),
                                   Text('8'),
                                   Expanded(
                                     child: Text(
@@ -110,11 +113,13 @@ class HomePage extends StatelessWidget {
                         Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) => CasePage(
+                              builder: (context) => CasePageScreen(
                                 reportCaseId: snapshot.data!.docs[index].id,
                                 case_description: snapshot.data!.docs[index].get('case_description'),
                                 case_topic: snapshot.data!.docs[index].get('case_title'),
                                 fileUrl: snapshot.data!.docs[index].get('evidence_attachment'),
+                                isAnonymous: snapshot.data!.docs[index].get('anonymously'),
+                                fullName: snapshot.data!.docs[index].get('victim_name'),
                               ),
                             ));
                       },
