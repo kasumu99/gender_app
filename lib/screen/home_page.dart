@@ -5,15 +5,34 @@ import 'package:flutter/painting.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:gender_app/components/constants.dart';
 import 'package:gender_app/components/nav_drawer.dart';
-import 'package:gender_app/model/user_preferences.dart';
 import 'package:gender_app/screen/case_page_screen.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
-class HomePage extends StatelessWidget {
+class HomePage extends StatefulWidget {
+  @override
+  State<HomePage> createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage> {
   FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  String? _mat;
   Future<void> _refresh() {
    return Future.delayed(
      Duration(seconds: 5)
    );
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _matricNumber();
+  }
+
+  void _matricNumber() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(()  {
+      _mat = prefs.getString('matricNumber');
+    });
   }
 
   @override
@@ -55,28 +74,36 @@ class HomePage extends StatelessWidget {
                   itemCount: snapshot.data!.docs.length,
                   shrinkWrap: true,
                   itemBuilder: (context, index) {
+                    List like = snapshot.data!.docs[index].get("thumbUps");
+                    bool getIsLiked(){
+                      for(var n in like){
+                        if(_mat == n.toString()){
+                          return true;
+                        }
+                      }
+                      return false;
+                    }
                     return GestureDetector(
                       child: Card(
                         margin: EdgeInsets.all(5),
                         child: Column(
                           children: [
                             Padding(
-                              padding: const EdgeInsets.all(8.0),
+                              padding: const EdgeInsets.symmetric(vertical: 8.0),
                               child: Row (
                                 children: [
                                   Padding(
-                                    padding: const EdgeInsets.all(8.0),
+                                    padding: const EdgeInsets.only(right: 8.0),
                                     child: CircleAvatar(
                                       radius: 20,
                                       backgroundImage: AssetImage('images/user_profile.jpg'),
+                                      backgroundColor: Colors.white,
                                     ),
                                   ),
-                                  Expanded(
-                                    child: Text(
-                                      'Report Topic: ${snapshot.data!.docs[index].get('case_title')}',
-                                      style: TextStyle(
-                                          fontWeight: FontWeight.bold
-                                      ),
+                                  Text(
+                                    'Report Topic: ${snapshot.data!.docs[index].get('case_title')}',
+                                    style: TextStyle(
+                                        fontWeight: FontWeight.bold
                                     ),
                                   ),
                                   SizedBox(
@@ -90,10 +117,10 @@ class HomePage extends StatelessWidget {
                               child: Row(
                                 children: [
                                   Icon(FontAwesomeIcons.thumbsUp),
-                                  Text('12'),
-                                  SizedBox(width: 10,),
-                                  Icon(FontAwesomeIcons.comment),
-                                  Text('8'),
+                                  Padding(
+                                    padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                                    child: Text('${like.length-1}'),
+                                  ),
                                   Expanded(
                                     child: Text(
                                       're-solve',
@@ -109,7 +136,16 @@ class HomePage extends StatelessWidget {
                           ],
                         ),
                       ),
-                      onTap: () {
+                      onTap: (){
+                        // bool getIsLiked(){
+                        //   List like = snapshot.data!.docs[index].get("thumbUps");
+                        //   for(var n in like){
+                        //     if(_mat == n.toString()){
+                        //       return true;
+                        //     }
+                        //   }
+                        //   return false;
+                        // }
                         Navigator.push(
                             context,
                             MaterialPageRoute(
@@ -120,6 +156,7 @@ class HomePage extends StatelessWidget {
                                 fileUrl: snapshot.data!.docs[index].get('evidence_attachment'),
                                 isAnonymous: snapshot.data!.docs[index].get('anonymously'),
                                 fullName: snapshot.data!.docs[index].get('victim_name'),
+                                isLiked: getIsLiked(),
                               ),
                             ));
                       },

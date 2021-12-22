@@ -10,16 +10,15 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:gender_app/components/comment_stream.dart';
 import 'package:gender_app/components/constants.dart';
 import 'package:gender_app/model/user_preferences.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
-class CasePageScreen extends StatelessWidget {
-  final messageTextController = TextEditingController();
-  String? messageText;
-  FirebaseFirestore _firestore = FirebaseFirestore.instance;
+class CasePageScreen extends StatefulWidget {
   final String reportCaseId;
   final String case_topic;
   final String case_description;
   final bool isAnonymous;
   final String fullName;
+  bool isLiked;
   final List<dynamic> fileUrl;
 
   CasePageScreen({
@@ -27,8 +26,32 @@ class CasePageScreen extends StatelessWidget {
     required this.case_topic,
     required this.case_description,
     required this.fileUrl,
-    required this.isAnonymous, required this.fullName
+    required this.isAnonymous,
+    required this.fullName,
+    required this.isLiked
   });
+
+  @override
+  State<CasePageScreen> createState() => _CasePageScreenState();
+}
+
+class _CasePageScreenState extends State<CasePageScreen> {
+  final messageTextController = TextEditingController();
+  String? _mat;
+  String? messageText;
+  @override
+  void initState() {
+    super.initState();
+    _getSharedPref();
+  }
+
+  void _getSharedPref() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(()  {
+      _mat = prefs.getString('matricNumber');
+    });
+  }
+  FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
   @override
   Widget build(BuildContext context) {
@@ -65,6 +88,7 @@ class CasePageScreen extends StatelessWidget {
                                 CircleAvatar(
                                   radius: 20,
                                   backgroundImage: AssetImage('images/user_profile.jpg'),
+                                  backgroundColor: Colors.white,
                                 ),
                                 Padding(
                                   padding: const EdgeInsets.all(8.0),
@@ -72,8 +96,8 @@ class CasePageScreen extends StatelessWidget {
                                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                     crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
-                                      isAnonymous ? Text('Anonymous',
-                                        style: TextStyle(fontWeight: FontWeight.bold),):Text(fullName,
+                                      widget.isAnonymous ? Text('Anonymous',
+                                        style: TextStyle(fontWeight: FontWeight.bold),):Text(widget.fullName,
                                         style: TextStyle(
                                           fontWeight: FontWeight.bold
                                       ),
@@ -93,7 +117,7 @@ class CasePageScreen extends StatelessWidget {
                             Padding(
                               padding: const EdgeInsets.only(top: 8.0),
                               child: Text(
-                                'Topic: ${case_topic}',
+                                'Topic: ${widget.case_topic}',
                                 style: TextStyle(
                                   color: Colors.black,
                                   fontWeight: FontWeight.bold,
@@ -114,10 +138,10 @@ class CasePageScreen extends StatelessWidget {
                             Container(
                               padding: const EdgeInsets.all(8.0),
                               child: Text(
-                                  case_description
+                                  widget.case_description
                               ),
                             ),
-                            fileUrl.isNotEmpty?Container(
+                            widget.fileUrl.isNotEmpty?Container(
                               padding: EdgeInsets.symmetric(vertical: 8),
                               child: Text(
                                 'Attachment: ',
@@ -126,7 +150,7 @@ class CasePageScreen extends StatelessWidget {
                                 ),
                               ),
                             ):Container(),
-                            fileUrl.isNotEmpty ? IgnorePointer(
+                            widget.fileUrl.isNotEmpty ? IgnorePointer(
                               child: GridView.builder(
                                 shrinkWrap: true,
                                 gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
@@ -134,9 +158,9 @@ class CasePageScreen extends StatelessWidget {
                                   mainAxisSpacing: 10,
                                   crossAxisSpacing: 10,
                                 ),
-                                itemCount: fileUrl.length,
+                                itemCount: widget.fileUrl.length,
                                 itemBuilder: (context, index) {
-                                  return fileDesign(fileUrl);
+                                  return fileDesign(widget.fileUrl);
                                 },),
                             ) : Container(),
                           ],
@@ -167,7 +191,7 @@ class CasePageScreen extends StatelessWidget {
                             ),
                             Container(
                                 height: 400,
-                                child: CommentStream(reportCaseId: reportCaseId,)),
+                                child: CommentStream(reportCaseId: widget.reportCaseId,)),
                           ],
                         ),
                       ),
@@ -194,7 +218,7 @@ class CasePageScreen extends StatelessWidget {
                     onPressed: () async {
                       FocusScope.of(context).unfocus();
                       messageTextController.clear();
-                      _firestore.collection(reportCase_text).doc(reportCaseId).collection(Comment_text).add({
+                      _firestore.collection(reportCase_text).doc(widget.reportCaseId).collection(Comment_text).add({
                         'text': messageText,
                         'sender': await UserPreferences.getFullname(),
                         'timeStamp': DateTime.now(),
@@ -206,10 +230,19 @@ class CasePageScreen extends StatelessWidget {
                     ),
                   ),
                   IconButton(
-                      onPressed: () {
-
+                      onPressed: () async {
+                        setState((){
+                          widget.isLiked = !widget.isLiked;
+                        });
+                        List<String?> matric = [];
+                        matric.add(_mat);
+                        widget.isLiked ?_firestore.collection(reportCase_text).doc(widget.reportCaseId)
+                            .update({'thumbUps': FieldValue.arrayUnion(matric)}):
+                        _firestore.collection(reportCase_text).doc(widget.reportCaseId)
+                            .update({'thumbUps': FieldValue.arrayRemove(matric)});
                       },
-                      icon: Icon(FontAwesomeIcons.thumbsUp))
+                      icon: widget.isLiked ? Icon(FontAwesomeIcons.solidThumbsUp) : Icon(FontAwesomeIcons.thumbsUp)
+                  )
                 ],
               ),
             ),

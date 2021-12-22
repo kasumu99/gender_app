@@ -8,6 +8,8 @@ class FormTextField extends StatelessWidget {
   final int? maxLength;
   final bool? obsecureText;
   final Widget? suffixIcon;
+  final bool? isEnabled;
+  final String? textField;
 
   FormTextField({
     required this.inputType,
@@ -16,7 +18,9 @@ class FormTextField extends StatelessWidget {
     this.onChanged,
     this.maxLength,
     this.obsecureText = false,
-    this.suffixIcon
+    this.suffixIcon,
+    this.isEnabled = true,
+    this.textField
   });
 
   @override
@@ -44,9 +48,11 @@ class FormTextField extends StatelessWidget {
           color: Colors.black,
           fontSize: 16.0,
         ),
+        initialValue: textField,
         onChanged: onChanged,
         maxLength: maxLength,
         obscureText: obsecureText!,
+        enabled: isEnabled,
       ),
     );
   }

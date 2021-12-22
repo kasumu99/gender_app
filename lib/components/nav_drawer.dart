@@ -2,6 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:gender_app/model/user_preferences.dart';
 import 'package:gender_app/screen/report_case_screen.dart';
+import 'package:gender_app/screen/user_profile_screen.dart';
 import 'package:gender_app/screen/welcome_screen.dart';
 
 import 'rounded_button.dart';
@@ -18,14 +19,37 @@ class NavDrawer extends StatelessWidget {
     return Drawer(
       child: ListView(
         children: [
-          const DrawerHeader(
+          DrawerHeader(
             padding: EdgeInsets.all(0),
             child: UserAccountsDrawerHeader(
               accountName: Text('Elias'),
               accountEmail: Text('kasumu.elias@gmail.com'),
-              currentAccountPicture: CircleAvatar(
-                radius: 20,
-                backgroundImage: AssetImage('images/user_profile.jpg'),
+              currentAccountPicture: GestureDetector(
+                child: Stack(
+                  children: [
+                    const CircleAvatar(
+                      radius: 40,
+                      backgroundImage: AssetImage('images/user_profile.jpg'),
+                      backgroundColor: Colors.white,
+                    ),
+                    Positioned(
+                      bottom: 0,
+                      right: 0,
+                      child: Container(
+                        height: 25,
+                        width: 25,
+                        decoration: BoxDecoration(
+                            color: Colors.blue,
+                            borderRadius: BorderRadius.circular(20)),
+                        child: Icon(Icons.edit,color: Colors.white,size: 15,),
+                      ),
+                    )
+                  ],
+                ),
+                onTap: () {
+                  Navigator.pop(context);
+                  Navigator.push(context, MaterialPageRoute(builder: (context) => UserProfileScreen(),));
+                },
               ),
             ),
           ),
@@ -48,7 +72,15 @@ class NavDrawer extends StatelessWidget {
               // ...
             },
           ),
-
+          ListTile(
+            leading:
+                Icon(Icons.settings, color: Colors.black),
+            title: const Text('Settings'),
+            onTap: () {
+              // Update the state of the app.
+              // ...
+            },
+          ),
           ListTile(
             leading:
                 Icon(Icons.contact_support_outlined, color: Colors.black),
