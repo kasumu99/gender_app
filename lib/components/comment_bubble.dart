@@ -15,6 +15,7 @@ class CommentBubble extends StatelessWidget {
           CircleAvatar(
             radius: 20,
             backgroundImage: AssetImage('images/user_profile.jpg'),
+            backgroundColor: Colors.white,
           ),
           Expanded(
             child: Padding(
