@@ -4,7 +4,7 @@ bool confirmMatricNumber(String matric){
       caseSensitive: false
   );
   bool matches = regExp.hasMatch(matric);
-  if(matches){
+  if(matches && matric.length == 15){
     return true;
   }else{
     return false;

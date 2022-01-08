@@ -11,13 +11,15 @@ import 'package:gender_app/components/comment_stream.dart';
 import 'package:gender_app/components/constants.dart';
 import 'package:gender_app/model/user_preferences.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:timeago/timeago.dart' as timeago;
 
 class CasePageScreen extends StatefulWidget {
   final String reportCaseId;
   final String case_topic;
   final String case_description;
   final bool isAnonymous;
-  final String fullName;
+  final String? fullName;
+  final Timestamp timeStamp;
   bool isLiked;
   final List<dynamic> fileUrl;
 
@@ -27,8 +29,9 @@ class CasePageScreen extends StatefulWidget {
     required this.case_description,
     required this.fileUrl,
     required this.isAnonymous,
-    required this.fullName,
-    required this.isLiked
+    this.fullName,
+    required this.isLiked,
+    required this.timeStamp
   });
 
   @override
@@ -96,14 +99,14 @@ class _CasePageScreenState extends State<CasePageScreen> {
                                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                     crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
-                                      widget.isAnonymous ? Text('Anonymous',
-                                        style: TextStyle(fontWeight: FontWeight.bold),):Text(widget.fullName,
+                                      Text(
+                                        widget.fullName!,
                                         style: TextStyle(
                                           fontWeight: FontWeight.bold
                                       ),
                                       ),
                                       Text(
-                                        "Time Stamp",
+                                        timeago.format(widget.timeStamp.toDate()),
                                         style: TextStyle(
                                             fontSize: 10,
                                             color: Colors.black54
@@ -138,7 +141,11 @@ class _CasePageScreenState extends State<CasePageScreen> {
                             Container(
                               padding: const EdgeInsets.all(8.0),
                               child: Text(
-                                  widget.case_description
+                                widget.case_description,
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w300
+                                ),
                               ),
                             ),
                             widget.fileUrl.isNotEmpty?Container(
@@ -150,19 +157,19 @@ class _CasePageScreenState extends State<CasePageScreen> {
                                 ),
                               ),
                             ):Container(),
-                            widget.fileUrl.isNotEmpty ? IgnorePointer(
-                              child: GridView.builder(
-                                shrinkWrap: true,
-                                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                                  crossAxisCount: 2,
-                                  mainAxisSpacing: 10,
-                                  crossAxisSpacing: 10,
-                                ),
-                                itemCount: widget.fileUrl.length,
-                                itemBuilder: (context, index) {
-                                  return fileDesign(widget.fileUrl);
-                                },),
-                            ) : Container(),
+                            widget.fileUrl.isNotEmpty ?
+                            GridView.builder(
+                              shrinkWrap: true,
+                              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                                crossAxisCount: 2,
+                                mainAxisSpacing: 10,
+                                crossAxisSpacing: 20,
+                              ),
+                              itemCount: widget.fileUrl.length,
+                              padding: EdgeInsets.all(8),
+                              itemBuilder: (context, index) {
+                                return fileDesign(widget.fileUrl);
+                              },) : Container(),
                           ],
                         ),
                       ),
@@ -190,7 +197,6 @@ class _CasePageScreenState extends State<CasePageScreen> {
                               ),
                             ),
                             Container(
-                                height: 400,
                                 child: CommentStream(reportCaseId: widget.reportCaseId,)),
                           ],
                         ),
@@ -257,20 +263,23 @@ class _CasePageScreenState extends State<CasePageScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Expanded(
-            child: Container(
-              alignment: Alignment.center,
-              width: double.infinity,
-              decoration: BoxDecoration(
-                color: Colors.red,
-                borderRadius: BorderRadius.circular(12)
-              ),
-              child: Text(
-                '.mp3',
-                style: TextStyle(
-                  fontSize: 28,
-                  color: Colors.white
+            child: GestureDetector(
+              child: Container(
+                alignment: Alignment.center,
+                width: double.infinity,
+                decoration: BoxDecoration(
+                  color: Colors.red,
+                  borderRadius: BorderRadius.circular(12)
+                ),
+                child: Text(
+                  '.mp3',
+                  style: TextStyle(
+                    fontSize: 28,
+                    color: Colors.white
+                  ),
                 ),
               ),
+              onTap: () => print('click'),
             )
         ),
         const SizedBox(height: 8),

@@ -2,6 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:gender_app/model/user_preferences.dart';
 import 'package:gender_app/screen/report_case_screen.dart';
+import 'package:gender_app/screen/settings_screen.dart';
 import 'package:gender_app/screen/user_profile_screen.dart';
 import 'package:gender_app/screen/welcome_screen.dart';
 
@@ -17,7 +18,7 @@ class NavDrawer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Drawer(
-      child: ListView(
+      child: Column(
         children: [
           DrawerHeader(
             padding: EdgeInsets.all(0),
@@ -77,8 +78,8 @@ class NavDrawer extends StatelessWidget {
                 Icon(Icons.settings, color: Colors.black),
             title: const Text('Settings'),
             onTap: () {
-              // Update the state of the app.
-              // ...
+              Navigator.pop(context);
+              Navigator.push(context, MaterialPageRoute(builder: (context) => SettingsScreen(),));
             },
           ),
           ListTile(
@@ -90,20 +91,20 @@ class NavDrawer extends StatelessWidget {
               // ...
             },
           ),
+          Spacer(),
           RoundedButton(
               title: 'Logout',
               onPress: () {
                 showDialog(
                   context: context,
                   builder: (context) => AlertDialog(
-                  title: Text('Are sure u want to Logout'),
-                  actions: [
-                    TextButton(
-                      onPressed: () {
-                        Navigator.pop(context);
-                      },
-                      child: Text('No'),
+                  title: Text(
+                      'Are sure you want to logout',
+                    style: TextStyle(
+                      fontSize: 16
                     ),
+                  ),
+                  actions: [
                     TextButton(
                       onPressed: () async {
                         try{
@@ -115,7 +116,13 @@ class NavDrawer extends StatelessWidget {
                           print("Error: ${e}");
                         }
                       },
-                      child: Text('yes'),
+                      child: Text('YES'),
+                    ),
+                    TextButton(
+                      onPressed: () {
+                        Navigator.pop(context);
+                      },
+                      child: Text('NO'),
                     )
                   ],
 

@@ -9,7 +9,7 @@ class FormTextField extends StatelessWidget {
   final bool? obsecureText;
   final Widget? suffixIcon;
   final bool? isEnabled;
-  final String? textField;
+  final String? initialText;
 
   FormTextField({
     required this.inputType,
@@ -20,7 +20,7 @@ class FormTextField extends StatelessWidget {
     this.obsecureText = false,
     this.suffixIcon,
     this.isEnabled = true,
-    this.textField
+    this.initialText
   });
 
   @override
@@ -48,7 +48,7 @@ class FormTextField extends StatelessWidget {
           color: Colors.black,
           fontSize: 16.0,
         ),
-        initialValue: textField,
+        initialValue: initialText,
         onChanged: onChanged,
         maxLength: maxLength,
         obscureText: obsecureText!,

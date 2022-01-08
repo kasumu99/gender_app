@@ -4,7 +4,8 @@ import 'package:flutter/material.dart';
 class CommentBubble extends StatelessWidget {
   final String sender;
   final String text;
-  CommentBubble({required this.sender, required this.text});
+  final String timeStamp;
+  CommentBubble({required this.sender, required this.text, required this.timeStamp});
 
   @override
   Widget build(BuildContext context) {
@@ -42,6 +43,14 @@ class CommentBubble extends StatelessWidget {
                   ),
                 ],
               ),
+            ),
+          ),
+          Text(
+            timeStamp,
+            style: TextStyle(
+                fontSize: 16.0,
+                fontWeight:FontWeight.w400,
+                color: Colors.black54
             ),
           ),
         ],

@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:gender_app/components/comment_bubble.dart';
 import 'package:gender_app/components/constants.dart';
+import 'package:timeago/timeago.dart' as timeago;
 
 class CommentStream extends StatelessWidget {
   FirebaseFirestore _firestore = FirebaseFirestore.instance;
@@ -25,16 +26,20 @@ class CommentStream extends StatelessWidget {
         for (var message in messages) {
           final messageText = message.data() as Map;
           final messageSender = messageText['sender'];
+          final commentTime= messageText['timeStamp'];
           final messageBubble = CommentBubble(
             sender: messageSender,
             text: messageText['text'],
+            timeStamp: timeago.format(commentTime.toDate(), locale: 'en_short'),
           );
           messageBubbles.add(messageBubble);
         }
-        return ListView(
-          scrollDirection: Axis.vertical,
-          shrinkWrap: true,
-          children: messageBubbles,
+        return IgnorePointer(
+          child: ListView(
+            scrollDirection: Axis.vertical,
+            shrinkWrap: true,
+            children: messageBubbles,
+          ),
         );
       },
     );

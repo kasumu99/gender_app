@@ -57,7 +57,7 @@ class _HomePageState extends State<HomePage> {
           stream: _firestore.collection(reportCase_text).snapshots(),
           builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
             if (snapshot.hasError) {
-              return Text('Something went wrong');
+              return Center(child: Text('Something went wrong'));
             }
             if (snapshot.connectionState == ConnectionState.waiting) {
               return Center(
@@ -100,10 +100,28 @@ class _HomePageState extends State<HomePage> {
                                       backgroundColor: Colors.white,
                                     ),
                                   ),
-                                  Text(
-                                    'Report Topic: ${snapshot.data!.docs[index].get('case_title')}',
-                                    style: TextStyle(
-                                        fontWeight: FontWeight.bold
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          '${snapshot.data!.docs[index].get('case_title')}',
+                                          style: TextStyle(
+                                              fontWeight: FontWeight.bold
+                                          ),
+                                          // overflow: TextOverflow.ellipsis,
+                                        ),
+                                        Text(
+                                          '${snapshot.data!.docs[index].get('case_description')}',
+                                          style: TextStyle(
+                                              fontWeight: FontWeight.w400,
+                                            fontStyle: FontStyle.italic
+                                          ),
+                                          maxLines: 1,
+                                          overflow: TextOverflow.ellipsis,
+
+                                        ),
+                                      ],
                                     ),
                                   ),
                                   SizedBox(
@@ -119,7 +137,7 @@ class _HomePageState extends State<HomePage> {
                                   Icon(FontAwesomeIcons.thumbsUp),
                                   Padding(
                                     padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                                    child: Text('${like.length-1}'),
+                                    child: Text('${like.length}'),
                                   ),
                                   Expanded(
                                     child: Text(
@@ -137,15 +155,10 @@ class _HomePageState extends State<HomePage> {
                         ),
                       ),
                       onTap: (){
-                        // bool getIsLiked(){
-                        //   List like = snapshot.data!.docs[index].get("thumbUps");
-                        //   for(var n in like){
-                        //     if(_mat == n.toString()){
-                        //       return true;
-                        //     }
-                        //   }
-                        //   return false;
-                        // }
+                        var fullname = 'Anonymous';
+                        if(snapshot.data!.docs[index].get('anonymously') == false){
+                          fullname = snapshot.data!.docs[index].get('victim_name');
+                        }
                         Navigator.push(
                             context,
                             MaterialPageRoute(
@@ -155,8 +168,9 @@ class _HomePageState extends State<HomePage> {
                                 case_topic: snapshot.data!.docs[index].get('case_title'),
                                 fileUrl: snapshot.data!.docs[index].get('evidence_attachment'),
                                 isAnonymous: snapshot.data!.docs[index].get('anonymously'),
-                                fullName: snapshot.data!.docs[index].get('victim_name'),
+                                fullName: fullname,
                                 isLiked: getIsLiked(),
+                                timeStamp: snapshot.data!.docs[index].get('caseTimeStamp'),
                               ),
                             ));
                       },
