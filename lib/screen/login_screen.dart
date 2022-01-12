@@ -129,8 +129,8 @@ class _LoginScreenState extends State<LoginScreen> {
                               setState(() {
                                 hideSendingProgressBar();
                               });
-                              UserPreferences.setUserMatricNumber(
-                                  newMatricNo);
+                              UserPreferences.setUserMatricNumber(newMatricNo);
+                              UserPreferences.setEmail(email!);
                               Navigator.pushAndRemoveUntil(
                                 context,
                                 MaterialPageRoute<dynamic>(

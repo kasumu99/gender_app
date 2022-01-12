@@ -3,6 +3,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 class UserPreferences{
   static final String _kMatricNumber = "matricNumber";
   static final String _fullName = "fullname";
+  static final String _email = "email";
   static Future<String?> getUserMatricNumber() async{
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     String? stringValue = await prefs.getString(_kMatricNumber);
@@ -20,6 +21,10 @@ class UserPreferences{
   static Future<bool> setUserMatricNumber(String value) async{
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     return prefs.setString(_kMatricNumber, value);
+  }
+  static Future<bool> setEmail(String value) async{
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    return prefs.setString(_email, value);
   }
   static Future<bool> setFullname(String value) async{
     final SharedPreferences prefs = await SharedPreferences.getInstance();

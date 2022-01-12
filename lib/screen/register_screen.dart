@@ -238,6 +238,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                  )
                                      .then((value){
                                    UserPreferences.setUserMatricNumber(newMatricNo!);
+                                   UserPreferences.setEmail(email!);
                                    UserPreferences.setFullname("${firstName} ${lastName}");
                                    Navigator.pushAndRemoveUntil(
                                        context,

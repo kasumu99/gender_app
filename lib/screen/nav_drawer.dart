@@ -1,12 +1,13 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:gender_app/model/user_preferences.dart';
+import 'package:gender_app/screen/myReportCase.dart';
 import 'package:gender_app/screen/report_case_screen.dart';
 import 'package:gender_app/screen/settings_screen.dart';
 import 'package:gender_app/screen/user_profile_screen.dart';
 import 'package:gender_app/screen/welcome_screen.dart';
 
-import 'rounded_button.dart';
+import '../components/rounded_button.dart';
 
 class NavDrawer extends StatelessWidget {
   final String userName;
@@ -23,8 +24,8 @@ class NavDrawer extends StatelessWidget {
           DrawerHeader(
             padding: EdgeInsets.all(0),
             child: UserAccountsDrawerHeader(
-              accountName: Text('Elias'),
-              accountEmail: Text('kasumu.elias@gmail.com'),
+              accountName: Text(userName),
+              accountEmail: Text(userEmail),
               currentAccountPicture: GestureDetector(
                 child: Stack(
                   children: [
@@ -67,10 +68,10 @@ class NavDrawer extends StatelessWidget {
           ),
           ListTile(
             leading: Icon(Icons.track_changes_outlined, color: Colors.black),
-            title: const Text('Report Status'),
+            title: const Text('My Report'),
             onTap: () {
-              // Update the state of the app.
-              // ...
+              Navigator.pop(context);
+              Navigator.push(context, MaterialPageRoute(builder: (context) => MyReportCase(),));
             },
           ),
           ListTile(

@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/painting.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:gender_app/components/constants.dart';
-import 'package:gender_app/components/nav_drawer.dart';
+import 'package:gender_app/screen/nav_drawer.dart';
 import 'package:gender_app/screen/case_page_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -16,6 +16,8 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   FirebaseFirestore _firestore = FirebaseFirestore.instance;
   String? _mat;
+  String? _fullName;
+  String? _email;
   Future<void> _refresh() {
    return Future.delayed(
      Duration(seconds: 5)
@@ -32,6 +34,8 @@ class _HomePageState extends State<HomePage> {
     final prefs = await SharedPreferences.getInstance();
     setState(()  {
       _mat = prefs.getString('matricNumber');
+      _fullName = prefs.getString('fullname');
+      _email = prefs.getString('email');
     });
   }
 
@@ -49,8 +53,8 @@ class _HomePageState extends State<HomePage> {
       ),
       drawer: NavDrawer(
         image: '',
-        userEmail: '',
-        userName: '',
+        userEmail: _email ?? 'Email',
+        userName: _fullName ?? 'Full name',
       ),
       body: SafeArea(
         child: StreamBuilder(

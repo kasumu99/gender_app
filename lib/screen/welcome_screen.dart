@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:gender_app/components/rounded_button.dart';
@@ -11,23 +13,48 @@ class WelcomeScreen extends StatefulWidget {
 }
 
 class _WelcomeScreenState extends State<WelcomeScreen> {
-  double currentPage = 0.0;
-  final _pageViewController = new PageController();
+  double _currentPage = 0;
+  final _pageViewController = new PageController(initialPage: 0);
+  // Timer? _timer;
+
+  // @override
+  // void initState() {
+  //   super.initState();
+  //   // _timer = Timer.periodic(Duration(seconds: 5), (Timer timer) {
+  //   //   if (_currentPage < 2) {
+  //   //     _currentPage++;
+  //   //   } else {
+  //   //     _currentPage = 0;
+  //   //   }
+  //   //
+  //   //   _pageViewController.animateToPage(
+  //   //     _currentPage.round(),
+  //   //     duration: Duration(milliseconds: 100),
+  //   //     curve: Curves.easeIn,
+  //   //   );
+  //   // });
+  // }
+  //
+  // @override
+  // void dispose() {
+  //   super.dispose();
+  //   _timer?.cancel();
+  // }
   List<Widget> slides = welcomeItem
       .map((item) => Container(
     child: Image.asset(
       item['image'],
-      fit: BoxFit.fill,
+      fit: BoxFit.contain,
     ),
   )).toList();
   List<Widget> indicator() => List<Widget>.generate(
       slides.length,
           (index) => Container(
         margin: EdgeInsets.symmetric(horizontal: 3.0),
-        height: currentPage.round() == index ? 20.0 : 10,
-        width: currentPage.round() == index ? 20.0 : 10,
+        height: _currentPage.round() == index ? 20.0 : 10,
+        width: _currentPage.round() == index ? 20.0 : 10,
         decoration: BoxDecoration(
-            color: currentPage.round() == index
+            color: _currentPage.round() == index
                 ? Colors.red
                 : Colors.white,
             borderRadius: BorderRadius.circular(30.0)),
@@ -47,7 +74,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                 itemBuilder: (BuildContext context, int index) {
                   _pageViewController.addListener(() {
                     setState(() {
-                      currentPage = _pageViewController.page!;
+                      _currentPage = _pageViewController.page!;
                     });
                   });
                   return slides[index];
